@@ -3,10 +3,8 @@ package com.simple.simplespringboot.controller;
 import com.simple.simplespringboot.model.Book;
 import com.simple.simplespringboot.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +28,29 @@ public class BookController {
     public Book findOne(@PathVariable Long id) {
         return bookRepository.findById(id)
                 .orElseThrow(BookNotFoundException::new);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Book create(@RequestBody Book book) {
+        return bookRepository.save(book);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        bookRepository.findById(id)
+                .orElseThrow(BookNotFoundException::new);
+        bookRepository.deleteById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Book updateBook(@RequestBody Book book, @PathVariable Long id) {
+        if (book.getId() != id) {
+            throw new BookIdMismatchException();
+        }
+        bookRepository.findById(id)
+                .orElseThrow(BookNotFoundException::new);
+        return bookRepository.save(book);
     }
 
 }
